@@ -53,46 +53,50 @@ abstract class AppDatabase : RoomDatabase() {
                         super.onCreate(db)
                         // Pre-populate with starter books & collections
                         CoroutineScope(Dispatchers.IO).launch {
-                            val dao = getDatabase(context).bookDao()
-                            val books = getStarterBooks()
-                            val insertedIds = mutableListOf<Long>()
-                            for (book in books) {
-                                val id = dao.insertBook(book)
-                                insertedIds.add(id)
-                            }
+                            try {
+                                val dao = INSTANCE?.bookDao() ?: getDatabase(context).bookDao()
+                                val books = getStarterBooks()
+                                val insertedIds = mutableListOf<Long>()
+                                for (book in books) {
+                                    val id = dao.insertBook(book)
+                                    insertedIds.add(id)
+                                }
 
-                            // Starter collections
-                            val col1Id = dao.insertCollection(
-                                BookCollection(
-                                    name = "Clássicos Fundamentais",
-                                    description = "Grandes obras da literatura mundial e brasileira.",
-                                    colorHex = "#1E3A5F"
+                                // Starter collections
+                                val col1Id = dao.insertCollection(
+                                    BookCollection(
+                                        name = "Clássicos Fundamentais",
+                                        description = "Grandes obras da literatura mundial e brasileira.",
+                                        colorHex = "#1E3A5F"
+                                    )
                                 )
-                            )
-                            val col2Id = dao.insertCollection(
-                                BookCollection(
-                                    name = "Favoritos da Vida",
-                                    description = "Livros marcantes que merecem releitura constante.",
-                                    colorHex = "#D97706"
+                                val col2Id = dao.insertCollection(
+                                    BookCollection(
+                                        name = "Favoritos da Vida",
+                                        description = "Livros marcantes que merecem releitura constante.",
+                                        colorHex = "#D97706"
+                                    )
                                 )
-                            )
-                            val col3Id = dao.insertCollection(
-                                BookCollection(
-                                    name = "Meta de Leitura 2026",
-                                    description = "Leituras planejadas para o ano corrente.",
-                                    colorHex = "#0D9488"
+                                val col3Id = dao.insertCollection(
+                                    BookCollection(
+                                        name = "Meta de Leitura 2026",
+                                        description = "Leituras planejadas para o ano corrente.",
+                                        colorHex = "#0D9488"
+                                    )
                                 )
-                            )
 
-                            // Associate starter books with collections
-                            if (insertedIds.size >= 5) {
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[0], col1Id))
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[0], col2Id))
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[1], col1Id))
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[1], col2Id))
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[2], col1Id))
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[3], col1Id))
-                                dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[4], col3Id))
+                                // Associate starter books with collections
+                                if (insertedIds.size >= 5) {
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[0], col1Id))
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[0], col2Id))
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[1], col1Id))
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[1], col2Id))
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[2], col1Id))
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[3], col1Id))
+                                    dao.insertBookCollectionCrossRef(BookCollectionCrossRef(insertedIds[4], col3Id))
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("AppDatabase", "Error seeding starter database", e)
                             }
                         }
                     }
